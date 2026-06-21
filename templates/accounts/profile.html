@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Your Profile &mdash; AuthSystem{% endblock %}
+
+{% block content %}
+<div class="pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto anim-fade-up" data-track-cursor>
+
+    <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-dark-800/80 backdrop-blur-2xl">
+        <div class="absolute -top-20 -right-20 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl"></div>
+        <div class="relative z-10 p-6 sm:p-10">
+
+            <!-- Profile Header -->
+            <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-8 pb-8 border-b border-white/5">
+                <div class="relative flex-shrink-0">
+                    {% if profile.avatar %}
+                        <img src="{{ profile.avatar.url }}" alt="{{ user.get_full_name }}"
+                             class="w-20 h-20 rounded-2xl object-cover ring-2 ring-white/10">
+                    {% else %}
+                        <span class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-2xl font-bold shadow-xl shadow-indigo-500/25">
+                            {{ user.first_name|first|default:user.email|first|upper }}
+                        </span>
+                    {% endif %}
+                </div>
+                <div class="text-center sm:text-left">
+                    <h1 class="text-2xl font-bold text-white">{{ user.get_full_name|default:"Your Name" }}</h1>
+                    <p class="text-slate-400">{{ user.email }}</p>
+                    <p class="text-xs text-slate-500 mt-1">Member since {{ user.date_joined|date:"F j, Y" }}</p>
+                </div>
+            </div>
+
+            {% if form.non_field_errors %}
+                <div class="mb-6 p-4 rounded-xl bg-red-900/30 border border-red-800/40 text-red-200 text-sm space-y-1">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Form -->
+            <form method="post" enctype="multipart/form-data" novalidate class="space-y-5">
+                {% csrf_token %}
+
+                <div class="grid gap-5 sm:grid-cols-2">
+                    <div class="form-group">
+                        <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-slate-300 mb-1.5">{{ form.first_name.label }}</label>
+                        <div class="relative" data-glow-input>
+                            <div class="input-glow input-glow--top"></div>
+                            <div class="input-glow input-glow--bottom"></div>
+                            {{ form.first_name }}
+                        </div>
+                        {% if form.first_name.errors %}
+                            <div class="mt-1.5 text-xs text-red-400 space-y-0.5">
+                                {% for error in form.first_name.errors %}<p>{{ error }}</p>{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-slate-300 mb-1.5">{{ form.last_name.label }}</label>
+                        <div class="relative" data-glow-input>
+                            <div class="input-glow input-glow--top"></div>
+                            <div class="input-glow input-glow--bottom"></div>
+                            {{ form.last_name }}
+                        </div>
+                        {% if form.last_name.errors %}
+                            <div class="mt-1.5 text-xs text-red-400 space-y-0.5">
+                                {% for error in form.last_name.errors %}<p>{{ error }}</p>{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.bio.id_for_label }}" class="block text-sm font-medium text-slate-300 mb-1.5">{{ form.bio.label }}</label>
+                    <div class="relative" data-glow-input>
+                        <div class="input-glow input-glow--top"></div>
+                        <div class="input-glow input-glow--bottom"></div>
+                        {{ form.bio }}
+                    </div>
+                    {% if form.bio.errors %}
+                        <div class="mt-1.5 text-xs text-red-400 space-y-0.5">
+                            {% for error in form.bio.errors %}<p>{{ error }}</p>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.avatar.id_for_label }}" class="block text-sm font-medium text-slate-300 mb-1.5">{{ form.avatar.label }}</label>
+                    <div class="relative" data-glow-input>
+                        <div class="input-glow input-glow--top"></div>
+                        <div class="input-glow input-glow--bottom"></div>
+                        {{ form.avatar }}
+                    </div>
+                    {% if form.avatar.errors %}
+                        <div class="mt-1.5 text-xs text-red-400 space-y-0.5">
+                            {% for error in form.avatar.errors %}<p>{{ error }}</p>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-3 pt-4">
+                    <button type="submit" class="group/button relative flex-1 overflow-hidden rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3 text-sm font-semibold text-white shadow-xl shadow-indigo-600/30 hover:from-indigo-500 hover:to-purple-500 transition-all duration-300 active:scale-[0.98]">
+                        <span class="btn-shine"><span class="btn-shine-inner"></span></span>
+                        <span class="relative z-10">Update Profile</span>
+                    </button>
+                    <a href="{% url 'accounts:dashboard' %}" class="inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/5 px-6 py-3 text-sm font-medium text-slate-300 hover:bg-white/10 hover:text-white transition-all duration-200">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+Hello {{ user.first_name }},
+
+Welcome to {{ site_name }}!
+
+Please activate your account by clicking the link below:
+
+{{ activation_url }}
+
+This link expires in 24 hours.
+
+If you didn't create this account, you can ignore this email.
+
+Best,
+The {{ site_name }} Team

@@ -1,0 +1,97 @@
+{% load static %}
+<header class="fixed top-0 left-0 right-0 z-40 h-16 border-b border-white/5 bg-dark/70 backdrop-blur-2xl">
+    <nav class="mx-auto max-w-7xl h-full flex items-center justify-between px-4 sm:px-6 lg:px-8" role="navigation" aria-label="Main navigation">
+
+        <!-- Brand -->
+        <a href="{% url 'accounts:dashboard' %}" class="flex items-center gap-2 text-lg font-semibold tracking-tight text-white hover:text-indigo-300 transition-colors">
+            <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-sm font-bold shadow-lg shadow-indigo-500/25">✦</span>
+            <span>AuthSystem</span>
+        </a>
+
+        <!-- Mobile toggle -->
+        <button class="sm:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors" aria-label="Toggle menu" onclick="toggleMobileMenu()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+
+        <!-- Nav links -->
+        <div class="hidden sm:flex items-center gap-1" id="navbarMenu">
+            {% if user.is_authenticated %}
+                <a href="{% url 'accounts:dashboard' %}"
+                   class="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200
+                          {% if request.resolver_match.url_name == 'dashboard' %}text-white bg-white/10 shadow-sm
+                          {% else %}text-slate-400 hover:text-white hover:bg-white/5{% endif %}">
+                    Dashboard
+                </a>
+                <a href="{% url 'accounts:profile' %}"
+                   class="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200
+                          {% if request.resolver_match.url_name == 'profile' %}text-white bg-white/10 shadow-sm
+                          {% else %}text-slate-400 hover:text-white hover:bg-white/5{% endif %}">
+                    Profile
+                </a>
+                <a href="{% url 'accounts:account_settings' %}"
+                   class="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200
+                          {% if request.resolver_match.url_name == 'account_settings' %}text-white bg-white/10 shadow-sm
+                          {% else %}text-slate-400 hover:text-white hover:bg-white/5{% endif %}">
+                    Settings
+                </a>
+                <div class="ml-2 pl-2 border-l border-white/10">
+                    <form action="{% url 'accounts:logout' %}" method="post" class="inline">
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-red-300 hover:bg-red-500/10 transition-all duration-200">
+                            Logout
+                        </button>
+                    </form>
+                </div>
+            {% else %}
+                <a href="{% url 'accounts:login' %}"
+                   class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
+                          {% if request.resolver_match.url_name == 'login' %}text-white bg-white/10 shadow-sm
+                          {% else %}text-slate-400 hover:text-white hover:bg-white/5{% endif %}">
+                    Login
+                </a>
+                <a href="{% url 'accounts:register' %}"
+                   class="px-4 py-2 rounded-lg text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-500 hover:to-purple-500 shadow-lg shadow-indigo-600/25 transition-all duration-200
+                          {% if request.resolver_match.url_name == 'register' %}ring-2 ring-indigo-400/50{% endif %}">
+                    Register
+                </a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Mobile menu overlay -->
+    <div class="sm:hidden hidden border-t border-white/5 bg-dark/95 backdrop-blur-2xl px-4 py-3 space-y-1" id="navbarMenu">
+        {% if user.is_authenticated %}
+            <a href="{% url 'accounts:dashboard' %}"
+               class="block px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                      {% if request.resolver_match.url_name == 'dashboard' %}text-white bg-white/10{% else %}text-slate-400 hover:text-white hover:bg-white/5{% endif %}">
+                Dashboard
+            </a>
+            <a href="{% url 'accounts:profile' %}"
+               class="block px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                      {% if request.resolver_match.url_name == 'profile' %}text-white bg-white/10{% else %}text-slate-400 hover:text-white hover:bg-white/5{% endif %}">
+                Profile
+            </a>
+            <a href="{% url 'accounts:account_settings' %}"
+               class="block px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                      {% if request.resolver_match.url_name == 'account_settings' %}text-white bg-white/10{% else %}text-slate-400 hover:text-white hover:bg-white/5{% endif %}">
+                Settings
+            </a>
+            <form action="{% url 'accounts:logout' %}" method="post" class="pt-2 border-t border-white/5">
+                {% csrf_token %}
+                <button type="submit" class="w-full px-3 py-2 rounded-lg text-sm font-medium text-red-300 hover:bg-red-500/10 transition-colors text-left">Logout</button>
+            </form>
+        {% else %}
+            <a href="{% url 'accounts:login' %}"
+               class="block px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                      {% if request.resolver_match.url_name == 'login' %}text-white bg-white/10{% else %}text-slate-400 hover:text-white hover:bg-white/5{% endif %}">
+                Login
+            </a>
+            <a href="{% url 'accounts:register' %}"
+               class="block px-3 py-2 rounded-lg text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-500 hover:to-purple-500 transition-all duration-200
+                      {% if request.resolver_match.url_name == 'register' %}ring-2 ring-indigo-400/50{% endif %}">
+                Register
+            </a>
+        {% endif %}
+    </div>
+</header>

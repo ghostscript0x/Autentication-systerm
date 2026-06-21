@@ -1,0 +1,15 @@
+# ============================================================================
+# Django Authentication System - Python Dependencies
+# ============================================================================
+#
+# Install with: pip install -r requirements.txt
+# ============================================================================
+
+# Django 5.0+ - Web framework
+Django>=5.0,<5.1
+
+# python-dotenv - Environment variable management
+python-dotenv>=1.0.0
+
+# Pillow - Image processing for avatar uploads
+Pillow>=10.0.0
