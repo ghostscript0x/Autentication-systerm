@@ -10,6 +10,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -32,6 +33,11 @@ ALLOWED_HOSTS = os.getenv(
     'localhost,127.0.0.1',
 ).split(',')
 
+CSRF_TRUSTED_ORIGINS = os.getenv(
+    'CSRF_TRUSTED_ORIGINS',
+    'http://localhost:8000,http://127.0.0.1:8000',
+).split(',')
+
 
 # Application definition
 
@@ -48,8 +54,16 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
 ]
 
+# Cloudinary storage (only in production when CLOUDINARY_URL is set)
+if os.getenv('CLOUDINARY_URL'):
+    INSTALLED_APPS += [
+        'cloudinary_storage',
+        'cloudinary',
+    ]
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -85,10 +99,11 @@ WSGI_APPLICATION = 'authentication_project.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'),
+        conn_max_age=600,
+        conn_health_checks=True,
+    ),
 }
 
 
@@ -150,10 +165,21 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Media files (uploaded user content)
+# WhiteNoise — compresses and caches static files in production
+STORAGES = {
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
 
-MEDIA_URL = 'media/'
+# Media files (uploaded user content — avatars)
+
+MEDIA_URL = 'media/'  # unused when Cloudinary is active
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Cloudinary media storage (used when CLOUDINARY_URL env var is set)
+if os.getenv('CLOUDINARY_URL'):
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 
 # Default primary key field type
@@ -169,6 +195,11 @@ LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'accounts:dashboard'
 LOGOUT_REDIRECT_URL = 'accounts:login'
 
+
+# Security settings for production behind a proxy (Render, Heroku, etc.)
+# https://docs.djangoproject.com/en/5.0/ref/settings/#secure-proxy-ssl-header
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = not DEBUG  # Redirect HTTP → HTTPS in production
 
 # Session settings for security
 # https://docs.djangoproject.com/en/5.0/topics/http/sessions/
