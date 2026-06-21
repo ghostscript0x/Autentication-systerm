@@ -30,6 +30,8 @@ from django.utils.http import urlsafe_base64_decode
 from django.views import View
 from django.views.generic import TemplateView, UpdateView
 
+import logging
+
 from accounts.forms import (
     CustomPasswordResetForm,
     CustomSetPasswordForm,
@@ -40,6 +42,8 @@ from accounts.forms import (
 from accounts.models import CustomUser, UserProfile
 from accounts.services import send_verification_email
 from accounts.tokens import email_verification_token
+
+logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -195,6 +199,8 @@ class CustomPasswordResetView(SuccessMessageMixin, PasswordResetView):
     Handle password reset requests.
 
     Users enter their email, and a reset link is sent if the email exists.
+    Catches email delivery failures gracefully — always shows the success
+    page to avoid leaking whether an account exists.
     """
 
     form_class = CustomPasswordResetForm
@@ -207,6 +213,24 @@ class CustomPasswordResetView(SuccessMessageMixin, PasswordResetView):
         'If an account exists with that email, '
         'a password reset link has been sent.'
     )
+
+    def form_valid(self, form):
+        """
+        Try sending the password reset email.
+
+        If SMTP fails (timeout, auth error, etc.), log the error and
+        still show the success page — never reveal whether an email
+        was actually sent or the account exists.
+        """
+        try:
+            return super().form_valid(form)
+        except Exception:
+            logger.exception(
+                'Password reset email failed to send — '
+                'SMTP server may be unreachable.'
+            )
+            messages.success(self.request, self.success_message)
+            return redirect(self.success_url)
 
 
 class CustomPasswordResetDoneView(PasswordResetDoneView):
